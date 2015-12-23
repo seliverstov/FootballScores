@@ -2,33 +2,57 @@ package barqsoft.footballscores;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
 {
-    public static final String PAGER_CURRENT = "Pager_Current";
+    public static String LOG_TAG = MainActivity.class.getSimpleName();
     public static final String SELECTED_MATCH = "Selected_match";
-    public static final String PAGER_FRAGMENT = "pagerFragment";
+
+    public static final String CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
+
     public static int selected_match_id;
     public static int current_fragment = 2;
-    public static String LOG_TAG = MainActivity.class.getSimpleName();
-    private final String SAVE_TAG = "Save Test";
-    private PagerFragment pagerFragment;
+
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       /* Log.d(LOG_TAG, "Reached MainActivity onCreate");*/
-        if (savedInstanceState == null) {
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        /*ActionBar actionBar = getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.setLogo(R.drawable.ic_launcher);
+            actionBar.setDisplayUseLogoEnabled(true);
+        }*/
+
+        mViewPager = (ViewPager)findViewById(R.id.viewpager);
+        mViewPager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
+
+        TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
+        tabLayout.setupWithViewPager(mViewPager);
+
+        if (savedInstanceState==null){
+            mViewPager.setCurrentItem(2);
+        }
+
+       /* if (savedInstanceState == null) {
             pagerFragment = new PagerFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, pagerFragment)
                     .commit();
-        }
+        }*/
     }
 
 
@@ -60,12 +84,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
+        outState.putInt(CURRENT_PAGE,mViewPager.getCurrentItem());
         /*Log.v(SAVE_TAG,"will save");
         Log.v(SAVE_TAG,"fragment: "+String.valueOf(pagerFragment.mPagerHandler.getCurrentItem()));
         Log.v(SAVE_TAG,"selected id: "+selected_match_id);*/
-        outState.putInt(PAGER_CURRENT, pagerFragment.mPagerHandler.getCurrentItem());
+//        outState.putInt(PAGER_CURRENT, pagerFragment.mPagerHandler.getCurrentItem());
         outState.putInt(SELECTED_MATCH,selected_match_id);
-        getSupportFragmentManager().putFragment(outState, PAGER_FRAGMENT, pagerFragment);
+//        getSupportFragmentManager().putFragment(outState, PAGER_FRAGMENT, pagerFragment);
         super.onSaveInstanceState(outState);
     }
 
@@ -75,9 +100,10 @@ public class MainActivity extends AppCompatActivity
        /* Log.v(SAVE_TAG,"will retrive");
         Log.v(SAVE_TAG,"fragment: "+String.valueOf(savedInstanceState.getInt("Pager_Current")));
         Log.v(SAVE_TAG,"selected id: "+savedInstanceState.getInt("Selected_match"));*/
-        current_fragment = savedInstanceState.getInt(PAGER_CURRENT);
+//        current_fragment = savedInstanceState.getInt(PAGER_CURRENT);
         selected_match_id = savedInstanceState.getInt(SELECTED_MATCH);
-        pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,PAGER_FRAGMENT);
+  //      pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,PAGER_FRAGMENT);
+        mViewPager.setCurrentItem(savedInstanceState.getInt(CURRENT_PAGE));
         super.onRestoreInstanceState(savedInstanceState);
     }
 }

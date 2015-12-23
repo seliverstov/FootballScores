@@ -76,5 +76,15 @@
     <color name="red13">#FFCACA</color>
     <color name="red14">#FFE4E4</color>
 
+    <color name="primary">#607D8B</color>
+    <color name="primaryDark">#455A64</color>
+    <color name="primaryLight">#CFD8DC</color>
+
+    <color name="accent">#448AEF</color>
+    <color name="text">#FFFFFF</color>
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#727272</color>
+
+    <color name="divider">#B6B6B6</color>
 
 </resources>

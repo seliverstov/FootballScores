@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -22,6 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import barqsoft.footballscores.PageFragment;
 import barqsoft.footballscores.db.DatabaseContract;
 import barqsoft.footballscores.R;
 
@@ -41,7 +43,8 @@ public class ScoresFetchService extends IntentService
     {
         getData("n2");
         getData("p2");
-
+        Intent messageIntent = new Intent(PageFragment.UPDATE_SCORES);
+        LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
         return;
     }
 

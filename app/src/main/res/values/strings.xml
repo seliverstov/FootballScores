@@ -46,4 +46,8 @@
     <string name="match_day_11_12">SemiFinal</string>
     <string name="match_day_final">Final</string>
     <string name="mathc_day">Matchday : %d</string>
+
+    <string name="date_format" translatable="false">yyyy-MM-dd</string>
+    <string name="day_format" translatable="false">EEEE</string>
+    <string name="no_results">No Results</string>
 </resources>
