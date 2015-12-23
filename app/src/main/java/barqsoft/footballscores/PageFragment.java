@@ -30,27 +30,18 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     public static final String DATE = "DATE";
     private static final String TAG = PageFragment.class.getSimpleName();
     private ScoresAdapter mAdapter;
-    private ProgressBar mProgressBar;
     private BroadcastReceiver receiver;
 
     public static final int SCORES_LOADER = 0;
 
     private int last_selected_item = -1;
 
-    private void updateScores(){
-        if (mProgressBar!=null) mProgressBar.setVisibility(View.VISIBLE);
-        Intent service = new Intent(getActivity(), ScoresFetchService.class);
-        service.setAction(MainActivity.UPDATE_SCORES);
-        getActivity().startService(service);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.page, container, false);
-
-        mProgressBar = (ProgressBar)rootView.findViewById(R.id.progressbar);
 
         final ListView scoreList = (ListView) rootView.findViewById(R.id.scores_list);
 
@@ -93,16 +84,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (mProgressBar!=null) {
-                    mProgressBar.setVisibility(mProgressBar.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
-                }
-            }
-        };
-        IntentFilter filter = new IntentFilter(MainActivity.UPDATE_SCORES);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+
 
         getLoaderManager().initLoader(SCORES_LOADER, getArguments(), this);
     }
@@ -110,6 +92,6 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
+
     }
 }

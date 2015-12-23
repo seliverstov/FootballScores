@@ -1,10 +1,14 @@
 package barqsoft.footballscores;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,6 +28,8 @@ public class MainActivity extends AppCompatActivity
     public static int selectedMath;
 
     private ViewPager mViewPager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private BroadcastReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +45,53 @@ public class MainActivity extends AppCompatActivity
             actionBar.setDisplayUseLogoEnabled(true);
         }*/
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setProgressViewOffset(true,250,450);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                update();
+            }
+        });
+
         mViewPager = (ViewPager)findViewById(R.id.viewpager);
         mViewPager.setAdapter(new PageAdapter(getSupportFragmentManager(), this));
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float v, int i1) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (mSwipeRefreshLayout != null) {
+                    mSwipeRefreshLayout.setEnabled(state == ViewPager.SCROLL_STATE_IDLE);
+                }
+            }
+        });
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tablayout);
         tabLayout.setupWithViewPager(mViewPager);
 
+
+
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        };
+        IntentFilter filter = new IntentFilter(MainActivity.UPDATE_SCORES);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
+
         if (savedInstanceState==null){
             mViewPager.setCurrentItem(2);
         }
+
+        update();
     }
 
 
@@ -91,11 +135,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Intent messageIntent = new Intent(MainActivity.UPDATE_SCORES);
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+    }
 
+    void update(){
         Intent service = new Intent(this, ScoresFetchService.class);
         service.setAction(UPDATE_SCORES);
         startService(service);
