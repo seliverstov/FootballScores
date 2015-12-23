@@ -11,14 +11,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import barqsoft.footballscores.db.DatabaseContract;
 import barqsoft.footballscores.service.ScoresFetchService;
@@ -28,7 +26,7 @@ import barqsoft.footballscores.service.ScoresFetchService;
  */
 public class PageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
-    public static final String UPDATE_SCORES = "UPDATE_SCORES";
+
     public static final String DATE = "DATE";
     private static final String TAG = PageFragment.class.getSimpleName();
     private ScoresAdapter mAdapter;
@@ -42,7 +40,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     private void updateScores(){
         if (mProgressBar!=null) mProgressBar.setVisibility(View.VISIBLE);
         Intent service = new Intent(getActivity(), ScoresFetchService.class);
-        service.setAction(UPDATE_SCORES);
+        service.setAction(MainActivity.UPDATE_SCORES);
         getActivity().startService(service);
     }
 
@@ -61,18 +59,17 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
         scoreList.setEmptyView(rootView.findViewById(R.id.emptylist));
 
-        mAdapter.detail_match_id = MainActivity.selected_match_id;
+        mAdapter.detail_match_id = MainActivity.selectedMath;
 
         scoreList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ScoresAdapter.ViewHolder selected = (ScoresAdapter.ViewHolder) view.getTag();
                 mAdapter.detail_match_id = selected.match_id;
-                MainActivity.selected_match_id = (int) selected.match_id;
+                MainActivity.selectedMath = (int) selected.match_id;
                 mAdapter.notifyDataSetChanged();
             }
         });
-        updateScores();
         return rootView;
     }
 
@@ -99,12 +96,14 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction()==UPDATE_SCORES)
-                    mProgressBar.setVisibility(View.GONE);
+                if (mProgressBar!=null) {
+                    mProgressBar.setVisibility(mProgressBar.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
+                }
             }
         };
-        IntentFilter filter = new IntentFilter(UPDATE_SCORES);
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver,filter);
+        IntentFilter filter = new IntentFilter(MainActivity.UPDATE_SCORES);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+
         getLoaderManager().initLoader(SCORES_LOADER, getArguments(), this);
     }
 

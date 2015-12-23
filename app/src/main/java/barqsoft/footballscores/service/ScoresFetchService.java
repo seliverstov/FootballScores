@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.PageFragment;
 import barqsoft.footballscores.db.DatabaseContract;
 import barqsoft.footballscores.R;
@@ -43,7 +44,7 @@ public class ScoresFetchService extends IntentService
     {
         getData("n2");
         getData("p2");
-        Intent messageIntent = new Intent(PageFragment.UPDATE_SCORES);
+        Intent messageIntent = new Intent(MainActivity.UPDATE_SCORES);
         LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
         return;
     }

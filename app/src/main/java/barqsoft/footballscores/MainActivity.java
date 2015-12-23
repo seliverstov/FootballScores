@@ -3,23 +3,25 @@ package barqsoft.footballscores;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+
+import barqsoft.footballscores.service.ScoresFetchService;
 
 public class MainActivity extends AppCompatActivity
 {
     public static String LOG_TAG = MainActivity.class.getSimpleName();
-    public static final String SELECTED_MATCH = "Selected_match";
 
+    public static final String UPDATE_SCORES = "barqsoft.footballscores.UPDATE_SCORES";
+    public static final String SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
     public static final String CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
 
-    public static int selected_match_id;
-    public static int current_fragment = 2;
+    public static int selectedMath;
 
     private ViewPager mViewPager;
 
@@ -46,13 +48,6 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState==null){
             mViewPager.setCurrentItem(2);
         }
-
-       /* if (savedInstanceState == null) {
-            pagerFragment = new PagerFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, pagerFragment)
-                    .commit();
-        }*/
     }
 
 
@@ -82,28 +77,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState){
         outState.putInt(CURRENT_PAGE,mViewPager.getCurrentItem());
-        /*Log.v(SAVE_TAG,"will save");
-        Log.v(SAVE_TAG,"fragment: "+String.valueOf(pagerFragment.mPagerHandler.getCurrentItem()));
-        Log.v(SAVE_TAG,"selected id: "+selected_match_id);*/
-//        outState.putInt(PAGER_CURRENT, pagerFragment.mPagerHandler.getCurrentItem());
-        outState.putInt(SELECTED_MATCH,selected_match_id);
-//        getSupportFragmentManager().putFragment(outState, PAGER_FRAGMENT, pagerFragment);
+        outState.putInt(SELECTED_MATCH, selectedMath);
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState)
-    {
-       /* Log.v(SAVE_TAG,"will retrive");
-        Log.v(SAVE_TAG,"fragment: "+String.valueOf(savedInstanceState.getInt("Pager_Current")));
-        Log.v(SAVE_TAG,"selected id: "+savedInstanceState.getInt("Selected_match"));*/
-//        current_fragment = savedInstanceState.getInt(PAGER_CURRENT);
-        selected_match_id = savedInstanceState.getInt(SELECTED_MATCH);
-  //      pagerFragment = (PagerFragment) getSupportFragmentManager().getFragment(savedInstanceState,PAGER_FRAGMENT);
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        selectedMath = savedInstanceState.getInt(SELECTED_MATCH);
         mViewPager.setCurrentItem(savedInstanceState.getInt(CURRENT_PAGE));
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent messageIntent = new Intent(MainActivity.UPDATE_SCORES);
+        LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
+
+        Intent service = new Intent(this, ScoresFetchService.class);
+        service.setAction(UPDATE_SCORES);
+        startService(service);
     }
 }
