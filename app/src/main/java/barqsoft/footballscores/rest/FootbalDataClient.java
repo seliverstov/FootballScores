@@ -47,9 +47,17 @@ public class FootbalDataClient {
     }
 
     public Team getTeam(String id) throws IOException {
-        Call<Team> call = service.getTeam(id,apiKey);
+        Call<Team> call = service.getTeam(id, apiKey);
         Response<Team> res = call.execute();
         Log.i(TAG, res.raw().request().urlString());
         return res.body();
     }
+
+    public League getLeague(String id) throws IOException {
+        Call<League> call = service.getLeague(id, apiKey);
+        Response<League> res = call.execute();
+        Log.i(TAG, res.raw().request().urlString());
+        return res.body();
+    }
+
 }

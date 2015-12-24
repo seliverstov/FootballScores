@@ -25,4 +25,7 @@ public interface FootbalDataService {
 
     @GET("/v1/soccerseasons")
     Call<List<League>> getSeasons(@Query("season") String season, @Header("X-Auth-Token") String apiKey);
+
+    @GET("/v1/soccerseasons/{id}")
+    Call<League> getLeague(@Path("id") String id, @Header("X-Auth-Token") String apiKey);
 }

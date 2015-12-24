@@ -7,6 +7,10 @@ import com.google.gson.annotations.SerializedName;
  * Created by a.g.seliverstov on 24.12.2015.
  */
 public class League {
+    @SerializedName("_links")
+    @Expose
+    private Links links;
+
     @SerializedName("caption")
     @Expose
     private String caption;
@@ -25,6 +29,14 @@ public class League {
     @SerializedName("lastUpdated")
     @Expose
     private String lastUpdated;
+
+    public Links getLinks(){
+        return links;
+    }
+
+    public void setLinks(Links links){
+        this.links=links;
+    }
 
     public String getCaption() {
         return caption;

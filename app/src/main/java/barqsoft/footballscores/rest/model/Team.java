@@ -7,6 +7,9 @@ import com.google.gson.annotations.SerializedName;
  * Created by a.g.seliverstov on 24.12.2015.
  */
 public class Team {
+    @SerializedName("_links")
+    @Expose
+    private Links links;
     @SerializedName("name")
     @Expose
     private String name;
@@ -19,6 +22,18 @@ public class Team {
     @SerializedName("crestUrl")
     @Expose
     private String crestUrl;
+    @SerializedName("code")
+    @Expose
+    private String code;
+
+    public Links getLinks(){
+        return links;
+    }
+
+    public void setLinks(Links links){
+        this.links=links;
+    }
+
 
     public String getName() {
         return name;
@@ -50,5 +65,13 @@ public class Team {
 
     public void setCrestUrl(String crestUrl) {
         this.crestUrl = crestUrl;
+    }
+
+    public String getCodel() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

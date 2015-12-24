@@ -8,13 +8,13 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Match {
+    @SerializedName("_links")
+    @Expose
+    private Links links;
 
-    @SerializedName("id")
+    @SerializedName("status")
     @Expose
-    private Integer id;
-    @SerializedName("soccerseasonId")
-    @Expose
-    private Integer soccerseasonId;
+    private String status;
     @SerializedName("date")
     @Expose
     private String date;
@@ -24,33 +24,27 @@ public class Match {
     @SerializedName("homeTeamName")
     @Expose
     private String homeTeamName;
-    @SerializedName("homeTeamId")
-    @Expose
-    private Integer homeTeamId;
     @SerializedName("awayTeamName")
     @Expose
     private String awayTeamName;
-    @SerializedName("awayTeamId")
-    @Expose
-    private Integer awayTeamId;
     @SerializedName("result")
     @Expose
     private MatchResult matchResult;
 
-    public Integer getId() {
-        return id;
+    public Links getLinks(){
+        return links;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setLinks(Links links){
+        this.links=links;
     }
 
-    public Integer getSoccerseasonId() {
-        return soccerseasonId;
+    public String getStatus() {
+        return status;
     }
 
-    public void setSoccerseasonId(Integer soccerseasonId) {
-        this.soccerseasonId = soccerseasonId;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getDate() {
@@ -77,28 +71,12 @@ public class Match {
         this.homeTeamName = homeTeamName;
     }
 
-    public Integer getHomeTeamId() {
-        return homeTeamId;
-    }
-
-    public void setHomeTeamId(Integer homeTeamId) {
-        this.homeTeamId = homeTeamId;
-    }
-
     public String getAwayTeamName() {
         return awayTeamName;
     }
 
     public void setAwayTeamName(String awayTeamName) {
         this.awayTeamName = awayTeamName;
-    }
-
-    public Integer getAwayTeamId() {
-        return awayTeamId;
-    }
-
-    public void setAwayTeamId(Integer awayTeamId) {
-        this.awayTeamId = awayTeamId;
     }
 
     public MatchResult getMatchResult() {
