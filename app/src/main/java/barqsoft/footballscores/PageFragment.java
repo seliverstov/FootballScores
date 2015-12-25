@@ -1,25 +1,19 @@
 package barqsoft.footballscores;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import barqsoft.footballscores.db.DatabaseContract;
-import barqsoft.footballscores.service.ScoresFetchService;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -56,8 +50,8 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ScoresAdapter.ViewHolder selected = (ScoresAdapter.ViewHolder) view.getTag();
-                mAdapter.detail_match_id = selected.match_id;
-                MainActivity.selectedMath = (int) selected.match_id;
+                mAdapter.detail_match_id = selected.matchId;
+                MainActivity.selectedMath = (int) selected.matchId;
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -67,7 +61,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
-        return new CursorLoader(getActivity(), DatabaseContract.scores_table.buildScoreWithDate(),
+        return new CursorLoader(getActivity(), DatabaseContract.ScoresEntry.buildScoreWithDate(),
                 null,null,new String[] {bundle.getString(DATE)},null);
     }
 

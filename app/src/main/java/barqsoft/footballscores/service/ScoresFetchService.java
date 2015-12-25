@@ -1,7 +1,6 @@
 package barqsoft.footballscores.service;
 
 import android.app.IntentService;
-import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -34,6 +33,7 @@ import barqsoft.footballscores.rest.FootbalDataClient;
 import barqsoft.footballscores.rest.model.League;
 import barqsoft.footballscores.rest.model.Match;
 import barqsoft.footballscores.rest.model.MatchResult;
+import barqsoft.footballscores.rest.model.Team;
 
 /**
  * Created by yehya khaled on 3/2/2015.
@@ -64,21 +64,45 @@ public class ScoresFetchService extends IntentService
             for(int i=0;i<matches.size();i++){
                 Match m = matches.get(i);
                 ContentValues v = new ContentValues();
-                v.put(DatabaseContract.scores_table.MATCH_ID, ContentUris.parseId(Uri.parse(m.getLinks().getSelf())));
-                v.put(DatabaseContract.scores_table.HOME_COL, m.getHomeTeamName());
-                v.put(DatabaseContract.scores_table.AWAY_COL, m.getAwayTeamName());
+                v.put(DatabaseContract.ScoresEntry.MATCH_ID, ContentUris.parseId(Uri.parse(m.getLinks().getSelf())));
+                v.put(DatabaseContract.ScoresEntry.MATCH_DAY, m.getMatchday());
+                v.put(DatabaseContract.ScoresEntry.HOME_COL, m.getHomeTeamName());
+                v.put(DatabaseContract.ScoresEntry.AWAY_COL, m.getAwayTeamName());
+
                 MatchResult r = m.getMatchResult();
                 if (r!=null){
-                    String h = (r.getGoalsHomeTeam()!=null)?String.valueOf(r.getGoalsHomeTeam()):"";
-                    String a = (r.getGoalsAwayTeam()!=null)?String.valueOf(r.getGoalsAwayTeam()):"";
-                    v.put(DatabaseContract.scores_table.HOME_GOALS_COL, h);
-                    v.put(DatabaseContract.scores_table.AWAY_GOALS_COL, a);
+                    String h = (r.getGoalsHomeTeam()!=null)?String.valueOf(r.getGoalsHomeTeam()):"?";
+                    String a = (r.getGoalsAwayTeam()!=null)?String.valueOf(r.getGoalsAwayTeam()):"?";
+                    v.put(DatabaseContract.ScoresEntry.HOME_GOALS_COL, h);
+                    v.put(DatabaseContract.ScoresEntry.AWAY_GOALS_COL, a);
                 }
 
                 League league = fdc.getLeague(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()))));
-                v.put(DatabaseContract.scores_table.LEAGUE_COL, league.getCaption());
-                v.put(DatabaseContract.scores_table.MATCH_DAY, m.getMatchday());
+                if (league!=null) {
+                    v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, league.getCaption());
+                    Integer id = (int)ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()));
+                    v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, id);
+                    Log.i(TAG, "League: " + league.getCaption()+", "+id);
+                }else{
+                    Log.e(TAG, "Empty response for league");
+                    v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, "League info not available");
+                    v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, -1);
+                }
 
+                Team homeTeam = fdc.getTeam(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getHomeTeam()))));
+                Team awayTeam = fdc.getTeam(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getAwayTeam()))));
+                if (homeTeam!=null) {
+                    v.put(DatabaseContract.ScoresEntry.HOME_CREST,homeTeam.getCrestUrl());
+                    Log.i(TAG,"Home crest: "+homeTeam.getCrestUrl());
+                }else{
+                    Log.e(TAG, "Empty response for home team");
+                }
+                if (awayTeam!=null) {
+                    v.put(DatabaseContract.ScoresEntry.AWAY_CREST,awayTeam.getCrestUrl());
+                    Log.i(TAG,"Away crest: "+awayTeam.getCrestUrl());
+                }else{
+                    Log.e(TAG, "Empty response for away team");
+                }
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -88,8 +112,8 @@ public class ScoresFetchService extends IntentService
                 dateFormat.setTimeZone(TimeZone.getDefault());
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
                 timeFormat.setTimeZone(TimeZone.getDefault());
-                v.put(DatabaseContract.scores_table.DATE_COL, dateFormat.format(date));
-                v.put(DatabaseContract.scores_table.TIME_COL, timeFormat.format(date));
+                v.put(DatabaseContract.ScoresEntry.DATE_COL, dateFormat.format(date));
+                v.put(DatabaseContract.ScoresEntry.TIME_COL, timeFormat.format(date));
                 vals[i]=v;
             }
             int insCnt = getContentResolver().bulkInsert(DatabaseContract.BASE_CONTENT_URI,vals);
@@ -291,18 +315,18 @@ public class ScoresFetchService extends IntentService
                     Away_goals = match_data.getJSONObject(RESULT).getString(AWAY_GOALS);
                     match_day = match_data.getString(MATCH_DAY);
                     ContentValues match_values = new ContentValues();
-                    match_values.put(DatabaseContract.scores_table.MATCH_ID,match_id);
-                    match_values.put(DatabaseContract.scores_table.DATE_COL,mDate);
-                    match_values.put(DatabaseContract.scores_table.TIME_COL,mTime);
-                    match_values.put(DatabaseContract.scores_table.HOME_COL,Home);
-                    match_values.put(DatabaseContract.scores_table.AWAY_COL,Away);
-                    match_values.put(DatabaseContract.scores_table.HOME_GOALS_COL,Home_goals);
-                    match_values.put(DatabaseContract.scores_table.AWAY_GOALS_COL,Away_goals);
-                    match_values.put(DatabaseContract.scores_table.LEAGUE_COL,League);
-                    match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
+                    match_values.put(DatabaseContract.ScoresEntry.MATCH_ID,match_id);
+                    match_values.put(DatabaseContract.ScoresEntry.DATE_COL,mDate);
+                    match_values.put(DatabaseContract.ScoresEntry.TIME_COL,mTime);
+                    match_values.put(DatabaseContract.ScoresEntry.HOME_COL,Home);
+                    match_values.put(DatabaseContract.ScoresEntry.AWAY_COL,Away);
+                    match_values.put(DatabaseContract.ScoresEntry.HOME_GOALS_COL,Home_goals);
+                    match_values.put(DatabaseContract.ScoresEntry.AWAY_GOALS_COL,Away_goals);
+                    match_values.put(DatabaseContract.ScoresEntry.LEAGUE_COL,League);
+                    match_values.put(DatabaseContract.ScoresEntry.MATCH_DAY,match_day);
                     //log spam
 
-                    //Log.v(TAG,match_id);
+                    //Log.v(TAG,matchId);
                     //Log.v(TAG,mDate);
                     //Log.v(TAG,mTime);
                     //Log.v(TAG,Home);
