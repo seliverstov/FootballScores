@@ -1,6 +1,8 @@
 package barqsoft.footballscores.service;
 
 import android.app.IntentService;
+import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -18,35 +20,83 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
 
 import barqsoft.footballscores.MainActivity;
-import barqsoft.footballscores.PageFragment;
 import barqsoft.footballscores.db.DatabaseContract;
 import barqsoft.footballscores.R;
+import barqsoft.footballscores.rest.FootbalDataClient;
+import barqsoft.footballscores.rest.model.League;
+import barqsoft.footballscores.rest.model.Match;
+import barqsoft.footballscores.rest.model.MatchResult;
 
 /**
  * Created by yehya khaled on 3/2/2015.
  */
 public class ScoresFetchService extends IntentService
 {
-    public static final String LOG_TAG = ScoresFetchService.class.getSimpleName();
+    public static final String TAG = ScoresFetchService.class.getSimpleName();
     public ScoresFetchService()
     {
         super(ScoresFetchService.class.getSimpleName());
     }
 
     @Override
-    protected void onHandleIntent(Intent intent)
-    {
-        getData("n2");
-        getData("p2");
+    protected void onHandleIntent(Intent intent){
+        getMatches("n2");
+        getMatches("p2");
         Intent messageIntent = new Intent(MainActivity.UPDATE_SCORES);
         LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
-        return;
+    }
+
+    private void getMatches(String timeFrame){
+        FootbalDataClient fdc = new FootbalDataClient(getString(R.string.api_key));
+        try {
+            List<Match> matches = fdc.listMatches(timeFrame);
+            if (matches==null || matches.size()==0) return;
+            Log.i(TAG, "Fetched "+matches.size()+" records");
+            ContentValues[] vals = new ContentValues[matches.size()];
+            for(int i=0;i<matches.size();i++){
+                Match m = matches.get(i);
+                ContentValues v = new ContentValues();
+                v.put(DatabaseContract.scores_table.MATCH_ID, ContentUris.parseId(Uri.parse(m.getLinks().getSelf())));
+                v.put(DatabaseContract.scores_table.HOME_COL, m.getHomeTeamName());
+                v.put(DatabaseContract.scores_table.AWAY_COL, m.getAwayTeamName());
+                MatchResult r = m.getMatchResult();
+                if (r!=null){
+                    String h = (r.getGoalsHomeTeam()!=null)?String.valueOf(r.getGoalsHomeTeam()):"";
+                    String a = (r.getGoalsAwayTeam()!=null)?String.valueOf(r.getGoalsAwayTeam()):"";
+                    v.put(DatabaseContract.scores_table.HOME_GOALS_COL, h);
+                    v.put(DatabaseContract.scores_table.AWAY_GOALS_COL, a);
+                }
+
+                League league = fdc.getLeague(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()))));
+                v.put(DatabaseContract.scores_table.LEAGUE_COL, league.getCaption());
+                v.put(DatabaseContract.scores_table.MATCH_DAY, m.getMatchday());
+
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = sdf.parse(m.getDate());
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                dateFormat.setTimeZone(TimeZone.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                timeFormat.setTimeZone(TimeZone.getDefault());
+                v.put(DatabaseContract.scores_table.DATE_COL, dateFormat.format(date));
+                v.put(DatabaseContract.scores_table.TIME_COL, timeFormat.format(date));
+                vals[i]=v;
+            }
+            int insCnt = getContentResolver().bulkInsert(DatabaseContract.BASE_CONTENT_URI,vals);
+            Log.i(TAG, "Inserted "+insCnt+" records");
+        } catch (IOException | ParseException e) {
+            Log.e(TAG,e.getMessage(),e);
+        }
     }
 
     private void getData (String timeFrame)
@@ -58,7 +108,7 @@ public class ScoresFetchService extends IntentService
 
         Uri fetch_build = Uri.parse(BASE_URL).buildUpon().
                 appendQueryParameter(QUERY_TIME_FRAME, timeFrame).build();
-        //Log.v(LOG_TAG, "The url we are looking at is: "+fetch_build.toString()); //log spam
+        //Log.v(TAG, "The url we are looking at is: "+fetch_build.toString()); //log spam
         HttpURLConnection m_connection = null;
         BufferedReader reader = null;
         String JSON_data = null;
@@ -94,7 +144,7 @@ public class ScoresFetchService extends IntentService
         }
         catch (Exception e)
         {
-            Log.e(LOG_TAG,"Exception here" + e.getMessage());
+            Log.e(TAG,"Exception here" + e.getMessage());
         }
         finally {
             if(m_connection != null)
@@ -108,7 +158,7 @@ public class ScoresFetchService extends IntentService
                 }
                 catch (IOException e)
                 {
-                    Log.e(LOG_TAG,"Error Closing Stream");
+                    Log.e(TAG,"Error Closing Stream");
                 }
             }
         }
@@ -127,12 +177,12 @@ public class ScoresFetchService extends IntentService
                 processJSONdata(JSON_data, getApplicationContext(), true);
             } else {
                 //Could not Connect
-                Log.d(LOG_TAG, "Could not connect to server.");
+                Log.d(TAG, "Could not connect to server.");
             }
         }
         catch(Exception e)
         {
-            Log.e(LOG_TAG,e.getMessage());
+            Log.e(TAG,e.getMessage());
         }
     }
     private void processJSONdata (String JSONdata,Context mContext, boolean isReal)
@@ -232,8 +282,8 @@ public class ScoresFetchService extends IntentService
                     }
                     catch (Exception e)
                     {
-                        Log.d(LOG_TAG, "error here!");
-                        Log.e(LOG_TAG,e.getMessage());
+                        Log.d(TAG, "error here!");
+                        Log.e(TAG,e.getMessage());
                     }
                     Home = match_data.getString(HOME_TEAM);
                     Away = match_data.getString(AWAY_TEAM);
@@ -252,13 +302,13 @@ public class ScoresFetchService extends IntentService
                     match_values.put(DatabaseContract.scores_table.MATCH_DAY,match_day);
                     //log spam
 
-                    //Log.v(LOG_TAG,match_id);
-                    //Log.v(LOG_TAG,mDate);
-                    //Log.v(LOG_TAG,mTime);
-                    //Log.v(LOG_TAG,Home);
-                    //Log.v(LOG_TAG,Away);
-                    //Log.v(LOG_TAG,Home_goals);
-                    //Log.v(LOG_TAG,Away_goals);
+                    //Log.v(TAG,match_id);
+                    //Log.v(TAG,mDate);
+                    //Log.v(TAG,mTime);
+                    //Log.v(TAG,Home);
+                    //Log.v(TAG,Away);
+                    //Log.v(TAG,Home_goals);
+                    //Log.v(TAG,Away_goals);
 
                     values.add(match_values);
                 }
@@ -269,11 +319,11 @@ public class ScoresFetchService extends IntentService
             inserted_data = mContext.getContentResolver().bulkInsert(
                     DatabaseContract.BASE_CONTENT_URI,insert_data);
 
-            //Log.v(LOG_TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
+            //Log.v(TAG,"Succesfully Inserted : " + String.valueOf(inserted_data));
         }
         catch (JSONException e)
         {
-            Log.e(LOG_TAG,e.getMessage());
+            Log.e(TAG,e.getMessage());
         }
 
     }
