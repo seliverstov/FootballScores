@@ -49,5 +49,5 @@
 
     <string name="date_format" translatable="false">yyyy-MM-dd</string>
     <string name="day_format" translatable="false">EEEE</string>
-    <string name="no_results">No Results</string>
+    <string name="no_results">No matches on this day</string>
 </resources>

@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity
     public static final String SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
     public static final String CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
 
-    public static int selectedMath;
+    public static int selectedMatch;
 
     private ViewPager mViewPager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -123,13 +123,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState){
         outState.putInt(CURRENT_PAGE,mViewPager.getCurrentItem());
-        outState.putInt(SELECTED_MATCH, selectedMath);
+        outState.putInt(SELECTED_MATCH, selectedMatch);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
-        selectedMath = savedInstanceState.getInt(SELECTED_MATCH);
+        selectedMatch = savedInstanceState.getInt(SELECTED_MATCH);
         mViewPager.setCurrentItem(savedInstanceState.getInt(CURRENT_PAGE));
         super.onRestoreInstanceState(savedInstanceState);
     }

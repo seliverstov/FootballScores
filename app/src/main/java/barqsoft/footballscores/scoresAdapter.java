@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.bumptech.glide.samples.svg.SvgDecoder;
 import com.bumptech.glide.samples.svg.SvgDrawableTranscoder;
 import com.bumptech.glide.samples.svg.SvgSoftwareLayerSetter;
 import com.caverock.androidsvg.SVG;
+import com.skyfishjy.CursorRecyclerViewAdapter;
 
 import java.io.InputStream;
 
@@ -30,28 +32,27 @@ import barqsoft.footballscores.db.DatabaseContract;
 /**
  * Created by yehya khaled on 2/26/2015.
  */
-public class ScoresAdapter extends CursorAdapter{
+public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewHolder>{
 
-    public Integer detail_match_id = 0;
+    public Integer selectedMatch = 0;
 
     private Context mContext;
 
-    public ScoresAdapter(Context context, Cursor cursor, int flags){
-        super(context,cursor,flags);
+    public ScoresAdapter(Context context, Cursor cursor){
+        super(context, cursor);
         mContext = context;
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent){
-        View mItem = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
-        ViewHolder mHolder = new ViewHolder(mItem);
-        mItem.setTag(mHolder);
-        return mItem;
+    public Intent createShareForecastIntent(String ShareText) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.hash_tag));
+        return shareIntent;
     }
 
     @Override
-    public void bindView(View view, final Context context, Cursor cursor){
-        final ViewHolder vh = (ViewHolder) view.getTag();
+    public void onBindViewHolder(final ViewHolder vh, Cursor cursor) {
 
         vh.homeName.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_COL)));
         vh.awayName.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_COL)));
@@ -66,8 +67,8 @@ public class ScoresAdapter extends CursorAdapter{
         String homeCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_CREST));
         String awayCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_CREST));
 
-        GenericRequestBuilder svgLoader = Glide.with(context)
-                .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
+        GenericRequestBuilder svgLoader = Glide.with(mContext)
+                .using(Glide.buildStreamModelLoader(Uri.class, mContext), InputStream.class)
                 .from(Uri.class)
                 .as(SVG.class)
                 .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
@@ -82,25 +83,23 @@ public class ScoresAdapter extends CursorAdapter{
         if (homeCrest!=null && homeCrest.endsWith("svg"))
             svgLoader.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(Uri.parse(homeCrest)).into(vh.homeCrest);
         else
-            Glide.with(context).load(homeCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.homeCrest);
+            Glide.with(mContext).load(homeCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.homeCrest);
 
         if (awayCrest!=null && awayCrest.endsWith("svg"))
             svgLoader.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(Uri.parse(awayCrest)).into(vh.awayCrest);
         else
-            Glide.with(context).load(awayCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.awayCrest);
+            Glide.with(mContext).load(awayCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.awayCrest);
 
-        LayoutInflater vi = (LayoutInflater) context.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater vi = (LayoutInflater) mContext.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View v = vi.inflate(R.layout.detail_fragment, null);
 
-        ViewGroup container = (ViewGroup) view.findViewById(R.id.details_fragment_container);
-
-        if(vh.matchId.equals(detail_match_id)){
-            container.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        if(vh.matchId.equals(selectedMatch)){
+            vh.details.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
             TextView match_day = (TextView) v.findViewById(R.id.matchday_textview);
 
-            match_day.setText(Utilies.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)),cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), context));
+            match_day.setText(Utilies.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)),cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), mContext));
 
             TextView league = (TextView) v.findViewById(R.id.league_textview);
 
@@ -109,29 +108,32 @@ public class ScoresAdapter extends CursorAdapter{
             Button share_button = (Button) v.findViewById(R.id.share_button);
             share_button.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v)
-                {
+                public void onClick(View v) {
                     //add Share Action
-                    context.startActivity(createShareForecastIntent(vh.homeName.getText()+" "
-                    +vh.score.getText()+" "+vh.awayName.getText() + " "));
+                    mContext.startActivity(createShareForecastIntent(vh.homeName.getText()+" "
+                            +vh.score.getText()+" "+vh.awayName.getText() + " "));
                 }
             });
-        }
-        else
-        {
-            container.removeAllViews();
+        } else {
+            vh.details.removeAllViews();
         }
 
-    }
-    public Intent createShareForecastIntent(String ShareText) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.hash_tag));
-        return shareIntent;
+        vh.card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ScoresAdapter.this.selectedMatch = vh.matchId;
+                MainActivity.selectedMatch = (int) vh.matchId;
+                ScoresAdapter.this.notifyDataSetChanged();
+            }
+        });
     }
 
-    class ViewHolder  {
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.list_item, parent, false));
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
         public TextView homeName;
         public TextView awayName;
         public TextView score;
@@ -139,13 +141,18 @@ public class ScoresAdapter extends CursorAdapter{
         public ImageView homeCrest;
         public ImageView awayCrest;
         public Integer matchId;
+        public ViewGroup details;
+        public CardView card;
         public ViewHolder(View view) {
+            super(view);
             homeName = (TextView) view.findViewById(R.id.home_name);
             awayName = (TextView) view.findViewById(R.id.away_name);
             score     = (TextView) view.findViewById(R.id.score_textview);
             date      = (TextView) view.findViewById(R.id.data_textview);
             homeCrest = (ImageView) view.findViewById(R.id.home_crest);
             awayCrest = (ImageView) view.findViewById(R.id.away_crest);
+            details = (ViewGroup)view.findViewById(R.id.details_fragment_container);
+            card = (CardView)view.findViewById(R.id.card_view);
         }
     }
 

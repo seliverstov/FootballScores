@@ -7,11 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.TextView;
 
 import barqsoft.footballscores.db.DatabaseContract;
 
@@ -29,6 +30,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     public static final int SCORES_LOADER = 0;
 
     private int last_selected_item = -1;
+    private TextView emptyView;
 
 
     @Override
@@ -37,24 +39,25 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
         View rootView = inflater.inflate(R.layout.page, container, false);
 
-        final ListView scoreList = (ListView) rootView.findViewById(R.id.scores_list);
+        final RecyclerView scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
 
-        mAdapter = new ScoresAdapter(getActivity(),null,0);
+        scoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new ScoresAdapter(getActivity(),null);
         scoreList.setAdapter(mAdapter);
 
-        scoreList.setEmptyView(rootView.findViewById(R.id.emptylist));
+        emptyView = (TextView)rootView.findViewById(R.id.emptylist);
 
-        mAdapter.detail_match_id = MainActivity.selectedMath;
+        mAdapter.selectedMatch = MainActivity.selectedMatch;
 
-        scoreList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*scoreList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ScoresAdapter.ViewHolder selected = (ScoresAdapter.ViewHolder) view.getTag();
-                mAdapter.detail_match_id = selected.matchId;
-                MainActivity.selectedMath = (int) selected.matchId;
+                mAdapter.selectedMatch = selected.matchId;
+                MainActivity.selectedMatch = (int) selected.matchId;
                 mAdapter.notifyDataSetChanged();
             }
-        });
+        });*/
         return rootView;
     }
 
@@ -67,6 +70,11 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor){
+        if (cursor!=null && cursor.getCount()>0){
+            emptyView.setVisibility(View.GONE);
+        }else{
+            emptyView.setVisibility(View.VISIBLE);
+        }
         mAdapter.swapCursor(cursor);
     }
 
