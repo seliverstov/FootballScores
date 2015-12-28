@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import barqsoft.footballscores.db.DatabaseContract.ScoresEntry;
+import barqsoft.footballscores.db.DatabaseContract.TeamEntry;
+import barqsoft.footballscores.db.DatabaseContract.LeagueEntry;
 
 /**
  * Created by yehya khaled on 2/25/2015.
@@ -14,7 +16,7 @@ public class ScoresDBHelper extends SQLiteOpenHelper{
     public static final String TAG = ScoresDBHelper.class.getSimpleName();
 
     public static final String DATABASE_NAME = "Scores.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
     public ScoresDBHelper(Context context)
     {
@@ -39,8 +41,24 @@ public class ScoresDBHelper extends SQLiteOpenHelper{
                 + ScoresEntry.AWAY_CREST+ " TEXT,"
                 + " UNIQUE ("+ ScoresEntry.MATCH_ID+") ON CONFLICT REPLACE"
                 + " );";
+        final String CREATE_TEAMS_SQL = "CREATE TABLE " + DatabaseContract.TEAMS_TABLE + " ("
+                + TeamEntry._ID + " INTEGER PRIMARY KEY,"
+                + TeamEntry.NAME_COL + " TEXT NOT NULL,"
+                + TeamEntry.SHORT_NAME_COL + " TEXT NOT NULL,"
+                + TeamEntry.CREST_URL_COL + " TEXT);";
+        final String CREATE_LEAGUES_SQL = "CREATE TABLE " + DatabaseContract.LEAGUES_TABLE + " ("
+                + LeagueEntry._ID + " INTEGER PRIMARY KEY,"
+                + LeagueEntry.NAME_COL + " TEXT NOT NULL,"
+                + LeagueEntry.SHORT_NAME_COL + " TEXT NOT NULL,"
+                + LeagueEntry.YEAR_COL + " TEXT);";
+
+
         Log.i(TAG, "Create table "+DatabaseContract.SCORES_TABLE);
         db.execSQL(CREATE_SCORES_SQL);
+        Log.i(TAG, "Create table "+DatabaseContract.TEAMS_TABLE);
+        db.execSQL(CREATE_TEAMS_SQL);
+        Log.i(TAG, "Create table "+DatabaseContract.LEAGUES_TABLE);
+        db.execSQL(CREATE_LEAGUES_SQL);
 
     }
 
@@ -48,12 +66,20 @@ public class ScoresDBHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
         Log.i(TAG, "Drop table "+DatabaseContract.SCORES_TABLE);
         db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.SCORES_TABLE);
+        Log.i(TAG, "Drop table "+DatabaseContract.TEAMS_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.TEAMS_TABLE);
+        Log.i(TAG, "Drop table "+DatabaseContract.LEAGUES_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.LEAGUES_TABLE);
         onCreate(db);
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.SCORES_TABLE);
+        Log.i(TAG, "Drop table "+DatabaseContract.TEAMS_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.TEAMS_TABLE);
+        Log.i(TAG, "Drop table " + DatabaseContract.LEAGUES_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DatabaseContract.LEAGUES_TABLE);
         onCreate(db);
     }
 }

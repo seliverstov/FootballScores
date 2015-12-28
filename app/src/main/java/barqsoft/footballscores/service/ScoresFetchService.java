@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -76,33 +77,14 @@ public class ScoresFetchService extends IntentService
                     v.put(DatabaseContract.ScoresEntry.HOME_GOALS_COL, h);
                     v.put(DatabaseContract.ScoresEntry.AWAY_GOALS_COL, a);
                 }
+                long leagueId = ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()));
+                getLeagueInfo(leagueId,v);
 
-                League league = fdc.getLeague(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()))));
-                if (league!=null) {
-                    v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, league.getCaption());
-                    Integer id = (int)ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()));
-                    v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, id);
-                    Log.i(TAG, "League: " + league.getCaption()+", "+id);
-                }else{
-                    Log.e(TAG, "Empty response for league");
-                    v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, "League info not available");
-                    v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, -1);
-                }
+                long homeTeamId = ContentUris.parseId(Uri.parse(m.getLinks().getHomeTeam()));
+                getTeamInfo(homeTeamId, DatabaseContract.ScoresEntry.HOME_CREST, v);
 
-                Team homeTeam = fdc.getTeam(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getHomeTeam()))));
-                Team awayTeam = fdc.getTeam(String.valueOf(ContentUris.parseId(Uri.parse(m.getLinks().getAwayTeam()))));
-                if (homeTeam!=null) {
-                    v.put(DatabaseContract.ScoresEntry.HOME_CREST,homeTeam.getCrestUrl());
-                    Log.i(TAG,"Home crest: "+homeTeam.getCrestUrl());
-                }else{
-                    Log.e(TAG, "Empty response for home team");
-                }
-                if (awayTeam!=null) {
-                    v.put(DatabaseContract.ScoresEntry.AWAY_CREST,awayTeam.getCrestUrl());
-                    Log.i(TAG,"Away crest: "+awayTeam.getCrestUrl());
-                }else{
-                    Log.e(TAG, "Empty response for away team");
-                }
+                long awayTeamId = ContentUris.parseId(Uri.parse(m.getLinks().getAwayTeam()));
+                getTeamInfo(awayTeamId, DatabaseContract.ScoresEntry.AWAY_CREST, v);
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -116,11 +98,67 @@ public class ScoresFetchService extends IntentService
                 v.put(DatabaseContract.ScoresEntry.TIME_COL, timeFormat.format(date));
                 vals[i]=v;
             }
-            int insCnt = getContentResolver().bulkInsert(DatabaseContract.BASE_CONTENT_URI,vals);
+            int insCnt = getContentResolver().bulkInsert(DatabaseContract.ScoresEntry.CONTENT_URI,vals);
             Log.i(TAG, "Inserted "+insCnt+" records");
         } catch (IOException | ParseException e) {
             Log.e(TAG,e.getMessage(),e);
         }
+    }
+
+    void getTeamInfo(long teamId, String column, ContentValues v) throws IOException {
+        Cursor c = getContentResolver().query(DatabaseContract.TeamEntry.buildTeamWithId(teamId),null,null,null,null);
+        if (c==null || !c.moveToFirst()){
+            FootbalDataClient fdc = new FootbalDataClient(getString(R.string.api_key));
+            Team team = fdc.getTeam(String.valueOf(teamId));
+            ContentValues values = new ContentValues();
+            values.put(DatabaseContract.TeamEntry._ID,teamId);
+            values.put(DatabaseContract.TeamEntry.NAME_COL, team.getName());
+            values.put(DatabaseContract.TeamEntry.SHORT_NAME_COL, team.getShortName());
+            values.put(DatabaseContract.TeamEntry.CREST_URL_COL, team.getCrestUrl());
+            Uri newItemUri = getContentResolver().insert(DatabaseContract.TeamEntry.CONTENT_URI,values);
+            c = getContentResolver().query(newItemUri,null,null,null,null);
+        }
+
+        if (c.moveToFirst()) {
+            String crestUrl = c.getString(c.getColumnIndex(DatabaseContract.TeamEntry.CREST_URL_COL));
+            v.put(column,crestUrl);
+            Log.i(TAG,column+": "+crestUrl);
+        }else{
+            Log.e(TAG, "Empty response for "+column);
+        }
+        c.close();
+    }
+
+    void getLeagueInfo(long leagueId, ContentValues v) throws IOException {
+        Cursor c = getContentResolver().query(
+                DatabaseContract.LeagueEntry.buildLeagueWithId(leagueId),
+                null, null, null, null
+        );
+        if (c==null || !c.moveToFirst()){
+            FootbalDataClient fdc = new FootbalDataClient(getString(R.string.api_key));
+            League league = fdc.getLeague(String.valueOf(leagueId));
+            if (league!=null){
+                ContentValues values = new ContentValues();
+                values.put(DatabaseContract.LeagueEntry._ID, leagueId);
+                values.put(DatabaseContract.LeagueEntry.NAME_COL, league.getCaption());
+                values.put(DatabaseContract.LeagueEntry.SHORT_NAME_COL, league.getLeague());
+                values.put(DatabaseContract.LeagueEntry.YEAR_COL, league.getYear());
+                Uri newItemUri = getContentResolver().insert(DatabaseContract.LeagueEntry.CONTENT_URI,values);
+                c = getContentResolver().query(newItemUri,null,null,null,null);
+            }
+        }
+
+        if (c.moveToFirst()) {
+            String leagueName = c.getString(c.getColumnIndex(DatabaseContract.LeagueEntry.NAME_COL));
+            v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, leagueName);
+            v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, leagueId);
+            Log.i(TAG, "League: " + leagueName + ", " + leagueId);
+        }else{
+            Log.e(TAG, "Empty response for league");
+            v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, "League info not available");
+            v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, -1);
+        }
+        c.close();
     }
 
     private void getData (String timeFrame)
