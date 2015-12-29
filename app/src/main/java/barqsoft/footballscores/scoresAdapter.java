@@ -99,7 +99,7 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
             TextView match_day = (TextView) v.findViewById(R.id.matchday_textview);
 
-            match_day.setText(Utilies.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)),cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), mContext));
+            match_day.setText(Utils.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)), cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), mContext));
 
             TextView league = (TextView) v.findViewById(R.id.league_textview);
 

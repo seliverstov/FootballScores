@@ -14,7 +14,7 @@ import retrofit.http.Query;
 /**
  * Created by a.g.seliverstov on 24.12.2015.
  */
-public interface FootbalDataService {
+public interface IFootballData {
 
 
     @GET("/v1/fixtures/")

@@ -17,18 +17,20 @@ import retrofit.Retrofit;
 /**
  * Created by a.g.seliverstov on 24.12.2015.
  */
-public class FootbalDataClient {
-    private static final String TAG = FootbalDataClient.class.getSimpleName();
+public class FootballDataClient {
+    private static final String TAG = FootballDataClient.class.getSimpleName();
     private String apiKey;
-    private FootbalDataService service;
+    private IFootballData service;
     public static final String DEFAULT_PAST_TIMEFRAME = "p2";
     public static final String DEFAULT_NEXT_TIMEFRAME = "n2";
+    public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String DEFAULT_TIME_ZONE = "UTC";
     public static final String BASE_URL = "http://api.football-data.org";
 
-    public FootbalDataClient(String apiKey){
+    public FootballDataClient(String apiKey){
         this.apiKey=apiKey;
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-        service = retrofit.create(FootbalDataService.class);
+        service = retrofit.create(IFootballData.class);
     }
 
     public List<Match> listMatches(String timeFrame) throws IOException {

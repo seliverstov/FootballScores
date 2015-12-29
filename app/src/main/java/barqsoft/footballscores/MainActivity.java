@@ -13,17 +13,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
-import barqsoft.footballscores.service.ScoresFetchService;
+import barqsoft.footballscores.service.FootballDataService;
 
 public class MainActivity extends AppCompatActivity
 {
-    public static String LOG_TAG = MainActivity.class.getSimpleName();
+    public static String TAG = MainActivity.class.getSimpleName();
 
-    public static final String UPDATE_SCORES = "barqsoft.footballscores.UPDATE_SCORES";
-    public static final String SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
-    public static final String CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
+    public static final String ACTION_UPDATE_SCORES = "barqsoft.footballscores.ACTION_UPDATE_SCORES";
+    public static final String MESSAGE_UPDATE_SCORES = "barqsoft.footballscores.MESSAGE_UPDATE_SCORES";
+
+    public static final String STORE_SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
+    public static final String STORE_CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
 
     public static int selectedMatch;
 
@@ -82,9 +85,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, Intent intent) {
                 mSwipeRefreshLayout.setRefreshing(false);
+                String message = intent.getStringExtra(MESSAGE_UPDATE_SCORES);
+                if (message!=null){
+                    Toast.makeText(MainActivity.this,message,Toast.LENGTH_SHORT).show();
+                }
             }
         };
-        IntentFilter filter = new IntentFilter(MainActivity.UPDATE_SCORES);
+        IntentFilter filter = new IntentFilter(MainActivity.ACTION_UPDATE_SCORES);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
 
         if (savedInstanceState==null){
@@ -122,15 +129,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState){
-        outState.putInt(CURRENT_PAGE,mViewPager.getCurrentItem());
-        outState.putInt(SELECTED_MATCH, selectedMatch);
+        outState.putInt(STORE_CURRENT_PAGE,mViewPager.getCurrentItem());
+        outState.putInt(STORE_SELECTED_MATCH, selectedMatch);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
-        selectedMatch = savedInstanceState.getInt(SELECTED_MATCH);
-        mViewPager.setCurrentItem(savedInstanceState.getInt(CURRENT_PAGE));
+        selectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
+        mViewPager.setCurrentItem(savedInstanceState.getInt(STORE_CURRENT_PAGE));
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -141,8 +148,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     void update(){
-        Intent service = new Intent(this, ScoresFetchService.class);
-        service.setAction(UPDATE_SCORES);
+        Intent service = new Intent(this, FootballDataService.class);
+        service.setAction(ACTION_UPDATE_SCORES);
         startService(service);
     }
 }

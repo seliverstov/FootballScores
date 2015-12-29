@@ -1,11 +1,13 @@
 package barqsoft.footballscores;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 /**
  * Created by yehya khaled on 3/3/2015.
  */
-public class Utilies{
+public class Utils {
 
     public static final int CHAMPIONS_LEAGUE = 362;
 
@@ -20,4 +22,14 @@ public class Utilies{
             return String.format(context.getString(R.string.mathc_day), match_day);
         }
     }
+
+    public static boolean isNetworkConnectionAvailable(Context context) {
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info == null) return false;
+        NetworkInfo.State network = info.getState();
+        return (network == NetworkInfo.State.CONNECTED || network == NetworkInfo.State.CONNECTING);
+    }
+
+
 }

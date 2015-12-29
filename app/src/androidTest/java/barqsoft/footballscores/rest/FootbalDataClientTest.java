@@ -18,9 +18,9 @@ import barqsoft.footballscores.rest.model.Team;
 public class FootbalDataClientTest extends AndroidTestCase {
     private static final String TAG = FootbalDataClientTest.class.getSimpleName();
 
-    FootbalDataClient client;
+    FootballDataClient client;
     public void setUp(){
-        client = new FootbalDataClient(getContext().getString(R.string.api_key));
+        client = new FootballDataClient(getContext().getString(R.string.api_key));
     }
 
     public void testListMatches() throws IOException {
