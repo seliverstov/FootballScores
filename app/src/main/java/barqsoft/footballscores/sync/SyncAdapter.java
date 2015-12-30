@@ -162,7 +162,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         if (c.moveToFirst()) {
             String crestUrl = c.getString(c.getColumnIndex(DatabaseContract.TeamEntry.CREST_URL_COL));
             v.put(column,crestUrl);
-            Log.i(TAG,column+": "+crestUrl);
+            //Log.i(TAG,column+": "+crestUrl);
         }else{
             Log.e(TAG, "Empty response for " + column);
         }
@@ -191,7 +191,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String leagueName = c.getString(c.getColumnIndex(DatabaseContract.LeagueEntry.NAME_COL));
             v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, leagueName);
             v.put(DatabaseContract.ScoresEntry.LEAGUE_ID_COL, leagueId);
-            Log.i(TAG, "League: " + leagueName + ", " + leagueId);
+            //Log.i(TAG, "League: " + leagueName + ", " + leagueId);
         }else{
             Log.e(TAG, "Empty response for league");
             v.put(DatabaseContract.ScoresEntry.LEAGUE_COL, getContext().getString(R.string.league_not_known));

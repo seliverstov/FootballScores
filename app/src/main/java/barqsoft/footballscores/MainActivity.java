@@ -11,14 +11,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
+import barqsoft.footballscores.api.SelectedMatchChangedListener;
 import barqsoft.footballscores.sync.SyncAdapter;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements SelectedMatchChangedListener
 {
     public static String TAG = MainActivity.class.getSimpleName();
 
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final long SYNC_INTERVAL = 3600L;
 
-    public static int selectedMatch;
+    public static int selectedMatch = -1;
 
     private ViewPager mViewPager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -94,6 +96,9 @@ public class MainActivity extends AppCompatActivity
 
         if (savedInstanceState==null){
             mViewPager.setCurrentItem(2);
+        }else{
+            selectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
+            mViewPager.setCurrentItem(savedInstanceState.getInt(STORE_CURRENT_PAGE));
         }
 
         SyncAdapter.addPeriodicSync(this,SYNC_INTERVAL);
@@ -122,16 +127,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState){
-        outState.putInt(STORE_CURRENT_PAGE,mViewPager.getCurrentItem());
-        outState.putInt(STORE_SELECTED_MATCH, selectedMatch);
         super.onSaveInstanceState(outState);
+        outState.putInt(STORE_CURRENT_PAGE, mViewPager.getCurrentItem());
+        outState.putInt(STORE_SELECTED_MATCH, selectedMatch);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
         selectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
         mViewPager.setCurrentItem(savedInstanceState.getInt(STORE_CURRENT_PAGE));
-        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -148,6 +153,14 @@ public class MainActivity extends AppCompatActivity
             Intent messageIntent = new Intent(MainActivity.ACTION_UPDATE_SCORES);
             messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES, this.getString(R.string.no_network));
             broadcastManager.sendBroadcast(messageIntent);
+        }
+    }
+    @Override
+    public void notifySelectedItemChanged(){
+        PageAdapter adapter = (PageAdapter)mViewPager.getAdapter();
+        for(int i=0;i<adapter.getCount();i++){
+            PageFragment f = (PageFragment)adapter.getItem(i);
+            f.notifySelectedItemChanged();
         }
     }
 }

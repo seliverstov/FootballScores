@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +16,14 @@ import android.widget.TextView;
 import com.skyfishjy.CursorRecyclerViewAdapter;
 import com.squareup.picasso.Picasso;
 
+import barqsoft.footballscores.api.SelectedMatchChangedListener;
 import barqsoft.footballscores.db.DatabaseContract;
 
 /**
  * Created by yehya khaled on 2/26/2015.
  */
 public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewHolder>{
-
-    public Integer selectedMatch = 0;
+    private static final String TAG = ScoresAdapter.class.getSimpleName();
 
     private Context mContext;
 
@@ -59,7 +60,7 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
         View v = vi.inflate(R.layout.details, null);
 
-        if(vh.matchId.equals(selectedMatch)){
+        if(vh.matchId.equals(MainActivity.selectedMatch)){
             vh.details.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
             TextView matchTime = (TextView) v.findViewById(R.id.matchday);
@@ -86,9 +87,16 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
         vh.card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ScoresAdapter.this.selectedMatch = vh.matchId;
-                MainActivity.selectedMatch =       vh.matchId;
+                Log.i(TAG,"Match clicked "+vh.matchId);
+                if (vh.matchId.equals(MainActivity.selectedMatch)){
+                    MainActivity.selectedMatch = -1;
+                }else {
+                    MainActivity.selectedMatch = vh.matchId;
+                }
                 ScoresAdapter.this.notifyDataSetChanged();
+                if (mContext instanceof SelectedMatchChangedListener){
+                    ((SelectedMatchChangedListener)mContext).notifySelectedItemChanged();
+                }
             }
         });
     }

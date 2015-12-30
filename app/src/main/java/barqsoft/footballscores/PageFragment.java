@@ -9,17 +9,19 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import barqsoft.footballscores.api.SelectedMatchChangedListener;
 import barqsoft.footballscores.db.DatabaseContract;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class PageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SelectedMatchChangedListener {
     private static final String TAG = PageFragment.class.getSimpleName();
 
     public static final String DATE = "DATE";
@@ -45,9 +47,13 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
         emptyView = (TextView)rootView.findViewById(R.id.emptylist);
 
-        mAdapter.selectedMatch = MainActivity.selectedMatch;
-
         return rootView;
+    }
+
+    @Override
+    public void notifySelectedItemChanged() {
+        if (mAdapter!=null)
+            mAdapter.notifyDataSetChanged();
     }
 
     @Override
