@@ -60,7 +60,7 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
         View v = vi.inflate(R.layout.details, null);
 
-        if(vh.matchId.equals(MainActivity.selectedMatch)){
+        if(vh.matchId.equals(MainActivity.sSelectedMatch)){
             vh.details.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
             TextView matchTime = (TextView) v.findViewById(R.id.matchday);
@@ -88,10 +88,10 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
             @Override
             public void onClick(View v) {
                 Log.i(TAG,"Match clicked "+vh.matchId);
-                if (vh.matchId.equals(MainActivity.selectedMatch)){
-                    MainActivity.selectedMatch = -1;
+                if (vh.matchId.equals(MainActivity.sSelectedMatch)){
+                    MainActivity.sSelectedMatch = -1;
                 }else {
-                    MainActivity.selectedMatch = vh.matchId;
+                    MainActivity.sSelectedMatch = vh.matchId;
                 }
                 ScoresAdapter.this.notifyDataSetChanged();
                 if (mContext instanceof SelectedMatchChangedListener){

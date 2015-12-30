@@ -106,6 +106,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             for(int i=0;i<matches.size();i++){
                 Match m = matches.get(i);
                 ContentValues v = new ContentValues();
+                v.put(DatabaseContract.ScoresEntry._ID, ContentUris.parseId(Uri.parse(m.getLinks().getSelf())));
                 v.put(DatabaseContract.ScoresEntry.MATCH_ID, ContentUris.parseId(Uri.parse(m.getLinks().getSelf())));
                 v.put(DatabaseContract.ScoresEntry.MATCH_DAY, m.getMatchday());
                 v.put(DatabaseContract.ScoresEntry.HOME_COL, m.getHomeTeamName());
@@ -161,7 +162,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         if (c.moveToFirst()) {
             String crestUrl = c.getString(c.getColumnIndex(DatabaseContract.TeamEntry.CREST_URL_COL));
-            v.put(column,crestUrl);
+            v.put(column, crestUrl);
             //Log.i(TAG,column+": "+crestUrl);
         }else{
             Log.e(TAG, "Empty response for " + column);

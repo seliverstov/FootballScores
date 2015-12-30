@@ -32,9 +32,14 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
     public static final String STORE_SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
     public static final String STORE_CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
 
+    public static final String EXTRA_START_PAGE = "barqsoft.footballscores.EXTRA_START_PAGE";
+    public static final String EXTRA_SELECTED_MATCH = "barqsoft.footballscores.EXTRA_SELECTED_MATCH";
+
     public static final long SYNC_INTERVAL = 3600L;
 
-    public static int selectedMatch = -1;
+    public static int sSelectedMatch = -1;
+
+    public static final int DEFAULT_PAGE = 2;
 
     private ViewPager mViewPager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -94,17 +99,41 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
         IntentFilter filter = new IntentFilter(MainActivity.ACTION_UPDATE_SCORES);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
 
-        if (savedInstanceState==null){
-            mViewPager.setCurrentItem(2);
+        int startPage = getIntent().getIntExtra(EXTRA_START_PAGE, -1);
+        int selectedMatch = getIntent().getIntExtra(EXTRA_SELECTED_MATCH, -1);
+        Log.i(TAG, "onCreate_________________");
+        Log.i(TAG,"selectedMatch "+selectedMatch);
+        if (startPage>=0) {
+            mViewPager.setCurrentItem(startPage);
         }else{
-            selectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
-            mViewPager.setCurrentItem(savedInstanceState.getInt(STORE_CURRENT_PAGE));
+            if (savedInstanceState==null)
+                mViewPager.setCurrentItem(DEFAULT_PAGE);
+        }
+
+        if (selectedMatch!=-1){
+              sSelectedMatch = selectedMatch;
         }
 
         SyncAdapter.addPeriodicSync(this,SYNC_INTERVAL);
         update();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(TAG, "onNewIntent_________________");
+
+        int startPage = intent.getIntExtra(EXTRA_START_PAGE, -1);
+        Log.i(TAG, "startPage"+startPage);
+        int selectedMatch = intent.getIntExtra(EXTRA_SELECTED_MATCH, -1);
+        if (startPage>=0) {
+            mViewPager.setCurrentItem(startPage);
+        }
+        if (selectedMatch!=-1){
+            sSelectedMatch = selectedMatch;
+            notifySelectedItemChanged();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -129,13 +158,13 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putInt(STORE_CURRENT_PAGE, mViewPager.getCurrentItem());
-        outState.putInt(STORE_SELECTED_MATCH, selectedMatch);
+        outState.putInt(STORE_SELECTED_MATCH, sSelectedMatch);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
-        selectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
+        sSelectedMatch = savedInstanceState.getInt(STORE_SELECTED_MATCH);
         mViewPager.setCurrentItem(savedInstanceState.getInt(STORE_CURRENT_PAGE));
     }
 

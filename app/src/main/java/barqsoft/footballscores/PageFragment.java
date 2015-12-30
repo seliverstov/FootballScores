@@ -1,6 +1,5 @@
 package barqsoft.footballscores;
 
-import android.content.BroadcastReceiver;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,7 +24,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String TAG = PageFragment.class.getSimpleName();
 
     public static final String DATE = "DATE";
-
+    private RecyclerView mScoreList;
     private ScoresAdapter mAdapter;
 
     public static final int SCORES_LOADER = 0;
@@ -39,11 +38,11 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
         View rootView = inflater.inflate(R.layout.page, container, false);
 
-        final RecyclerView scoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
+        mScoreList = (RecyclerView) rootView.findViewById(R.id.scores_list);
 
-        scoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mScoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ScoresAdapter(getActivity(),null);
-        scoreList.setAdapter(mAdapter);
+        mScoreList.setAdapter(mAdapter);
 
         emptyView = (TextView)rootView.findViewById(R.id.emptylist);
 
@@ -52,8 +51,21 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public void notifySelectedItemChanged() {
-        if (mAdapter!=null)
+        if (mAdapter!=null) {
             mAdapter.notifyDataSetChanged();
+            for (int i = 0; i < mAdapter.getItemCount(); i++) {
+                if (MainActivity.sSelectedMatch == mAdapter.getItemId(i)) {
+                    mScoreList.scrollToPosition(i);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        notifySelectedItemChanged();
     }
 
     @Override
@@ -71,6 +83,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
             emptyView.setVisibility(View.VISIBLE);
         }
         mAdapter.swapCursor(cursor);
+        notifySelectedItemChanged();
     }
 
     @Override

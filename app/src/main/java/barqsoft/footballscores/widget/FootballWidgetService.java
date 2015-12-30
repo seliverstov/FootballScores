@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import barqsoft.footballscores.MainActivity;
 import barqsoft.footballscores.R;
 import barqsoft.footballscores.Utils;
 import barqsoft.footballscores.db.DatabaseContract;
@@ -102,6 +103,11 @@ public class FootballWidgetService extends RemoteViewsService {
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
+
+            Intent intent = new Intent();
+            intent.putExtra(MainActivity.EXTRA_START_PAGE,MainActivity.DEFAULT_PAGE);
+            intent.putExtra(MainActivity.EXTRA_SELECTED_MATCH,cursor.getInt(cursor.getColumnIndex(MATCH_ID)));
+            views.setOnClickFillInIntent(R.id.widget_list_item,intent);
 
             return views;
         }
