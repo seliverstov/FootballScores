@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 
-import barqsoft.footballscores.service.FootballDataService;
+import barqsoft.footballscores.sync.SyncAdapter;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity
 
     public static final String STORE_SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
     public static final String STORE_CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
+
+    public static final long SYNC_INTERVAL = 3600L;
 
     public static int selectedMatch;
 
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity
             mViewPager.setCurrentItem(2);
         }
 
+        SyncAdapter.addPeriodicSync(this,SYNC_INTERVAL);
         update();
     }
 
@@ -150,8 +153,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     void update(){
-        Intent service = new Intent(this, FootballDataService.class);
-        service.setAction(ACTION_UPDATE_SCORES);
-        startService(service);
+        if (Utils.isNetworkConnectionAvailable(this)) {
+            SyncAdapter.syncNow(this);
+        }else {
+            LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
+            Intent messageIntent = new Intent(MainActivity.ACTION_UPDATE_SCORES);
+            messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES, this.getString(R.string.no_network));
+            broadcastManager.sendBroadcast(messageIntent);
+        }
     }
 }

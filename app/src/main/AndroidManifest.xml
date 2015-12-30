@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
 
     <application
         android:allowBackup="true"
@@ -20,10 +23,6 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name=".db.ScoresProvider"
-            android:authorities="barqsoft.footballscores" />
-
         <activity
             android:name=".AboutActivity"
             android:label="About"
@@ -32,9 +31,28 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="barqsoft.footballscores.MainActivity" />
         </activity>
-        <service android:name=".service.FootballDataService" android:exported="false" />
+
+        <provider
+            android:name=".db.ScoresProvider"
+            android:authorities="barqsoft.footballscores"
+            android:exported="false"
+            android:syncable="true"/>
 
         <service android:name=".widget.FootballWidgetService" android:permission="android.permission.BIND_REMOTEVIEWS" android:exported="false"/>
+
+        <service android:name=".sync.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator"/>
+        </service>
+
+        <service android:name=".sync.SyncService" android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/syncadapter"/>
+        </service>
 
         <receiver android:name=".widget.FootballWidgetProvider" >
             <intent-filter>
