@@ -86,11 +86,6 @@ public class FootballWidgetService extends RemoteViewsService {
             String homeCrest = cursor.getString(cursor.getColumnIndex(HOME_CREST));
             String awayCrest = cursor.getString(cursor.getColumnIndex(AWAY_CREST));
 
-            Log.i(TAG,homeCrest);
-            Log.i(TAG,Utils.updateWikipediaSVGImageUrl(homeCrest));
-            Log.i(TAG,awayCrest);
-            Log.i(TAG,Utils.updateWikipediaSVGImageUrl(awayCrest));
-
             try {
                 Bitmap homeBitmap = Picasso.with(context)
                         .load(Utils.updateWikipediaSVGImageUrl(homeCrest))
