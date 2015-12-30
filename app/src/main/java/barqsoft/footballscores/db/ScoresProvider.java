@@ -46,7 +46,7 @@ public class ScoresProvider extends ContentProvider
         matcher.addURI(authority, DatabaseContract.SCORES_PATH , MATCHES);
         matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/league" , MATCHES_WITH_LEAGUE);
         matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/id" , MATCHES_WITH_ID);
-        matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/date" , MATCHES_WITH_DATE);
+        matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/matchTime" , MATCHES_WITH_DATE);
         matcher.addURI(authority, DatabaseContract.TEAMS_PATH, TEAMS);
         matcher.addURI(authority, DatabaseContract.TEAMS_PATH+"/#" , TEAMS_WITH_ID);
         matcher.addURI(authority, DatabaseContract.LEAGUES_PATH, LEAGUES);

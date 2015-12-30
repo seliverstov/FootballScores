@@ -3,8 +3,6 @@ package barqsoft.footballscores;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -35,7 +33,6 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
     public Intent createShareForecastIntent(String ShareText) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.hash_tag));
         return shareIntent;
@@ -43,16 +40,14 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
     @Override
     public void onBindViewHolder(final ViewHolder vh, Cursor cursor) {
-
         vh.homeName.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_COL)));
         vh.awayName.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_COL)));
-        vh.date.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.TIME_COL)));
+        vh.matchTime.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.TIME_COL)));
         vh.matchId = cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_ID));
 
         String hGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_GOALS_COL));
         String aGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_GOALS_COL));
-        vh.score.setText(hGoals+" - "+aGoals);
-
+        vh.matchScore.setText(hGoals + " - " + aGoals);
 
         String homeCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_CREST));
         String awayCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_CREST));
@@ -62,26 +57,26 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
         LayoutInflater vi = (LayoutInflater) mContext.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View v = vi.inflate(R.layout.detail_fragment, null);
+        View v = vi.inflate(R.layout.details, null);
 
         if(vh.matchId.equals(selectedMatch)){
             vh.details.addView(v, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-            TextView match_day = (TextView) v.findViewById(R.id.matchday_textview);
+            TextView matchTime = (TextView) v.findViewById(R.id.matchday);
 
-            match_day.setText(Utils.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)), cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), mContext));
+            matchTime.setText(Utils.getMatchDay(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_DAY)), cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_ID_COL)), mContext));
 
-            TextView league = (TextView) v.findViewById(R.id.league_textview);
+            TextView league = (TextView) v.findViewById(R.id.league);
 
             league.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_COL)));
 
-            Button share_button = (Button) v.findViewById(R.id.share_button);
-            share_button.setOnClickListener(new View.OnClickListener() {
+            Button shareButton = (Button) v.findViewById(R.id.share_button);
+            shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //add Share Action
-                    mContext.startActivity(createShareForecastIntent(vh.homeName.getText()+" "
-                            +vh.score.getText()+" "+vh.awayName.getText() + " "));
+                    mContext.startActivity(createShareForecastIntent(vh.homeName.getText() + " "
+                            + vh.matchScore.getText() + " " + vh.awayName.getText() + " "));
                 }
             });
         } else {
@@ -92,7 +87,7 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
             @Override
             public void onClick(View v) {
                 ScoresAdapter.this.selectedMatch = vh.matchId;
-                MainActivity.selectedMatch = (int) vh.matchId;
+                MainActivity.selectedMatch =       vh.matchId;
                 ScoresAdapter.this.notifyDataSetChanged();
             }
         });
@@ -106,8 +101,8 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
     class ViewHolder extends RecyclerView.ViewHolder {
         public TextView homeName;
         public TextView awayName;
-        public TextView score;
-        public TextView date;
+        public TextView matchScore;
+        public TextView matchTime;
         public ImageView homeCrest;
         public ImageView awayCrest;
         public Integer matchId;
@@ -117,11 +112,11 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
             super(view);
             homeName = (TextView) view.findViewById(R.id.home_name);
             awayName = (TextView) view.findViewById(R.id.away_name);
-            score     = (TextView) view.findViewById(R.id.score_textview);
-            date      = (TextView) view.findViewById(R.id.data_textview);
+            matchScore = (TextView) view.findViewById(R.id.match_score);
+            matchTime = (TextView) view.findViewById(R.id.match_time);
             homeCrest = (ImageView) view.findViewById(R.id.home_crest);
             awayCrest = (ImageView) view.findViewById(R.id.away_crest);
-            details = (ViewGroup)view.findViewById(R.id.details_fragment_container);
+            details = (ViewGroup)view.findViewById(R.id.details_container);
             card = (CardView)view.findViewById(R.id.card_view);
         }
     }

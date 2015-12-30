@@ -19,17 +19,15 @@ import barqsoft.footballscores.db.DatabaseContract;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>
-{
+public class PageFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String TAG = PageFragment.class.getSimpleName();
 
     public static final String DATE = "DATE";
-    private static final String TAG = PageFragment.class.getSimpleName();
+
     private ScoresAdapter mAdapter;
-    private BroadcastReceiver receiver;
 
     public static final int SCORES_LOADER = 0;
 
-    private int last_selected_item = -1;
     private TextView emptyView;
 
 
@@ -49,15 +47,6 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
 
         mAdapter.selectedMatch = MainActivity.selectedMatch;
 
-        /*scoreList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ScoresAdapter.ViewHolder selected = (ScoresAdapter.ViewHolder) view.getTag();
-                mAdapter.selectedMatch = selected.matchId;
-                MainActivity.selectedMatch = (int) selected.matchId;
-                mAdapter.notifyDataSetChanged();
-            }
-        });*/
         return rootView;
     }
 
@@ -86,8 +75,6 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-
         getLoaderManager().initLoader(SCORES_LOADER, getArguments(), this);
     }
 
