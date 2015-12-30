@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_view"
     android:layout_gravity="center"
     android:layout_width="match_parent"
@@ -9,14 +8,13 @@
     android:layout_marginRight="@dimen/activity_horizontal_margin"
     app:cardElevation="4dp"
     style="@style/CardView">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
             android:orientation="horizontal" android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            >
+            android:paddingTop="5dp">
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -57,7 +55,6 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:id="@+id/match_time"/>
-
             </LinearLayout>
             <LinearLayout
                 android:layout_width="0dp"
