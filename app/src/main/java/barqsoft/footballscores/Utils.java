@@ -64,7 +64,7 @@ public class Utils {
                     for (int i = 1; i < s.length; i++) {
                         result.append("/").append(s[i]);
                     }
-                    result.append("/72px-").append(s[s.length - 1]).append(".png");
+                    result.append("/200px-").append(s[s.length - 1]).append(".png");
                     return result.toString();
                 }else{
                     return url;
