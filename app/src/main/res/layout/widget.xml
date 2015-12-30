@@ -19,6 +19,7 @@
                 android:layout_height="@dimen/widget_crest_size"
                 android:scaleType="centerInside"
                 android:layout_gravity="center"
+                android:contentDescription="@string/app_logo"
                 android:src="@drawable/ic_launcher"/>
         </FrameLayout>
 
@@ -47,6 +48,7 @@
                 android:layout_height="@dimen/widget_crest_size"
                 android:scaleType="centerInside"
                 android:layout_gravity="center"
+                android:contentDescription="@string/app_logo"
                 android:src="@drawable/ic_launcher"/>
         </FrameLayout>
     </LinearLayout>

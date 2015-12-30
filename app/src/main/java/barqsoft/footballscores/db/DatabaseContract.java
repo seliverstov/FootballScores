@@ -52,7 +52,7 @@ public class DatabaseContract
 
         public static final String LEAGUE_COL = "league";
         public static final String LEAGUE_ID_COL = "league_id";
-        public static final String DATE_COL = "matchTime";
+        public static final String DATE_COL = "date";
         public static final String TIME_COL = "time";
         public static final String HOME_COL = "home";
         public static final String AWAY_COL = "away";

@@ -26,6 +26,7 @@
                     android:scaleType="centerInside"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_launcher"
+                    android:contentDescription="@string/home_logo"
                     android:id="@+id/home_crest"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -67,6 +68,7 @@
                     android:scaleType="centerInside"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_launcher"
+                    android:contentDescription="@string/away_logo"
                     android:id="@+id/away_crest"/>
                 <TextView
                     android:layout_width="wrap_content"

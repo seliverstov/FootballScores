@@ -46,7 +46,7 @@ public class ScoresProvider extends ContentProvider
         matcher.addURI(authority, DatabaseContract.SCORES_PATH , MATCHES);
         matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/league" , MATCHES_WITH_LEAGUE);
         matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/id" , MATCHES_WITH_ID);
-        matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/matchTime" , MATCHES_WITH_DATE);
+        matcher.addURI(authority, DatabaseContract.SCORES_PATH+"/date" , MATCHES_WITH_DATE);
         matcher.addURI(authority, DatabaseContract.TEAMS_PATH, TEAMS);
         matcher.addURI(authority, DatabaseContract.TEAMS_PATH+"/#" , TEAMS_WITH_ID);
         matcher.addURI(authority, DatabaseContract.LEAGUES_PATH, LEAGUES);
@@ -86,7 +86,7 @@ public class ScoresProvider extends ContentProvider
             case LEAGUES_WITH_ID:
                 return DatabaseContract.LeagueEntry.LEAGUES_CONTENT_ITEM_TYPE;
             default:
-                throw new UnsupportedOperationException("Unknown uri :" + uri );
+                throw new UnsupportedOperationException("Unknown Uri: " + uri );
         }
     }
 
@@ -135,7 +135,7 @@ public class ScoresProvider extends ContentProvider
                         projection,LEAGUES_BY_ID,new String[]{String.valueOf(ContentUris.parseId(uri))},null,null,null);
                     break;
             default:
-                throw new UnsupportedOperationException("Unknown Uri" + uri);
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
 
         }
         retCursor.setNotificationUri(getContext().getContentResolver(),uri);
@@ -158,7 +158,7 @@ public class ScoresProvider extends ContentProvider
                 break;
             }
             default:
-                throw new UnsupportedOperationException("Unknown Uri" + uri);
+                throw new UnsupportedOperationException("Unknown Uri: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri,null);
         return returnUri;
