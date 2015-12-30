@@ -50,4 +50,5 @@
     <string name="server_error">Can\'t update scores info due to server error. Please try later.</string>
     <string name="scored_updated">Scores info was successfully updated!</string>
     <string name="league_not_known">League info not available</string>
+    <string name="today_matches">Matches for today</string>
 </resources>

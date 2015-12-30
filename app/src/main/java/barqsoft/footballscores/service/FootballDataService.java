@@ -40,6 +40,7 @@ public class FootballDataService extends IntentService
 
     @Override
     protected void onHandleIntent(Intent intent){
+        LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this.getApplicationContext());
         Intent messageIntent = new Intent(MainActivity.ACTION_UPDATE_SCORES);
         if (Utils.isNetworkConnectionAvailable(this)) {
             try {
@@ -47,6 +48,8 @@ public class FootballDataService extends IntentService
                 getMatches(fdc, FootballDataClient.DEFAULT_NEXT_TIMEFRAME);
                 getMatches(fdc, FootballDataClient.DEFAULT_PAST_TIMEFRAME);
                 messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES, getString(R.string.scored_updated));
+                Intent widgetIntent = new Intent(MainActivity.ACTION_SCORES_UPDATED);
+                this.sendBroadcast(widgetIntent);
             }catch(Exception e){
                 Log.e(TAG,e.getMessage(),e);
                 messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES,getString(R.string.server_error));
@@ -54,7 +57,7 @@ public class FootballDataService extends IntentService
         }else{
             messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES,getString(R.string.no_network));
         }
-        LocalBroadcastManager.getInstance(this.getApplicationContext()).sendBroadcast(messageIntent);
+        broadcastManager.sendBroadcast(messageIntent);
     }
 
     private void getMatches(FootballDataClient fdc,String timeFrame){

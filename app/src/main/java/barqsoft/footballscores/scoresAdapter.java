@@ -14,18 +14,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
-import com.bumptech.glide.samples.svg.SvgDecoder;
-import com.bumptech.glide.samples.svg.SvgDrawableTranscoder;
-import com.bumptech.glide.samples.svg.SvgSoftwareLayerSetter;
-import com.caverock.androidsvg.SVG;
 import com.skyfishjy.CursorRecyclerViewAdapter;
-
-import java.io.InputStream;
+import com.squareup.picasso.Picasso;
 
 import barqsoft.footballscores.db.DatabaseContract;
 
@@ -67,28 +57,8 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
         String homeCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_CREST));
         String awayCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_CREST));
 
-        GenericRequestBuilder svgLoader = Glide.with(mContext)
-                .using(Glide.buildStreamModelLoader(Uri.class, mContext), InputStream.class)
-                .from(Uri.class)
-                .as(SVG.class)
-                .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
-                .sourceEncoder(new StreamEncoder())
-                .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
-                .decoder(new SvgDecoder())
-                .placeholder(R.drawable.no_icon)
-                .error(R.drawable.no_icon)
-                .animate(android.R.anim.fade_in)
-                .listener(new SvgSoftwareLayerSetter<Uri>());
-
-        if (homeCrest!=null && homeCrest.endsWith("svg"))
-            svgLoader.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(Uri.parse(homeCrest)).into(vh.homeCrest);
-        else
-            Glide.with(mContext).load(homeCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.homeCrest);
-
-        if (awayCrest!=null && awayCrest.endsWith("svg"))
-            svgLoader.diskCacheStrategy(DiskCacheStrategy.SOURCE).load(Uri.parse(awayCrest)).into(vh.awayCrest);
-        else
-            Glide.with(mContext).load(awayCrest).placeholder(R.drawable.no_icon).error(R.drawable.no_icon).into(vh.awayCrest);
+        Picasso.with(mContext).load(Utils.updateWikipediaSVGImageUrl(homeCrest)).error(R.drawable.no_icon).placeholder(R.drawable.ic_launcher).into(vh.homeCrest);
+        Picasso.with(mContext).load(Utils.updateWikipediaSVGImageUrl(awayCrest)).error(R.drawable.no_icon).placeholder(R.drawable.ic_launcher).into(vh.awayCrest);
 
         LayoutInflater vi = (LayoutInflater) mContext.getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 

@@ -32,7 +32,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="barqsoft.footballscores.MainActivity" />
         </activity>
-        <service android:name=".service.FootballDataService" />
+        <service android:name=".service.FootballDataService" android:exported="false" />
+
+        <service android:name=".widget.FootballWidgetService" android:permission="android.permission.BIND_REMOTEVIEWS" android:exported="false"/>
+
+        <receiver android:name=".widget.FootballWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="barqsoft.footballscores.ACTION_SCORES_UPDATED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/football_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity
     public static final String ACTION_UPDATE_SCORES = "barqsoft.footballscores.ACTION_UPDATE_SCORES";
     public static final String MESSAGE_UPDATE_SCORES = "barqsoft.footballscores.MESSAGE_UPDATE_SCORES";
 
+    public static final String ACTION_SCORES_UPDATED = "barqsoft.footballscores.ACTION_SCORES_UPDATED";
+
     public static final String STORE_SELECTED_MATCH = "barqsoft.footballscores.SELECTED_MATH";
     public static final String STORE_CURRENT_PAGE = "barqsoft.footballscores.CURRENT_PAGE";
 

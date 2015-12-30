@@ -1,6 +1,10 @@
 package barqsoft.footballscores;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -31,5 +35,46 @@ public class Utils {
         return (network == NetworkInfo.State.CONNECTED || network == NetworkInfo.State.CONNECTING);
     }
 
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 1;
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 1;
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public static String updateWikipediaSVGImageUrl(String url) {
+        if (url != null && !url.isEmpty() && url.toLowerCase().endsWith(".svg")) {
+            String[] tmp = url.split("/wikipedia/");
+            if (tmp.length==2) {
+                String[] s = tmp[1].split("/");
+                if (s.length > 1) {
+                    StringBuilder result = new StringBuilder();
+                    result.append(tmp[0]).append("/wikipedia/").append(s[0]).append("/thumb");
+                    for (int i = 1; i < s.length; i++) {
+                        result.append("/").append(s[i]);
+                    }
+                    result.append("/72px-").append(s[s.length - 1]).append(".png");
+                    return result.toString();
+                }else{
+                    return url;
+                }
+            }else{
+                return url;
+            }
+        }else{
+            return url;
+        }
+    }
 
 }
