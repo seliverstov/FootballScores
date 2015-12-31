@@ -77,4 +77,12 @@ public class Utils {
         }
     }
 
+    public static String getMatchResult(Context context,String homeGoal,String awayGoal){
+        if (homeGoal==null || awayGoal==null){
+            return context.getString(R.string.vs);
+        }else{
+            return homeGoal+" - "+awayGoal;
+        }
+    }
+
 }

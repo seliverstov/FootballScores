@@ -53,4 +53,6 @@
     <string name="home_logo">Home team logo</string>
     <string name="away_logo">Home team logo</string>
     <string name="app_logo">Application logo</string>
+    <string name="vs">vs</string>
+    <string name="subject">Football scores</string>
 </resources>

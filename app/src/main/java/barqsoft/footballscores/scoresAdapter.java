@@ -39,12 +39,12 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
         vh.matchTime.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.TIME_COL)));
         vh.matchId = cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresEntry.MATCH_ID));
 
-        String hGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_GOALS_COL));
-        String aGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_GOALS_COL));
-        vh.matchScore.setText(hGoals + " - " + aGoals);
+        final String hGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_GOALS_COL));
+        final String aGoals = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_GOALS_COL));
+        vh.matchScore.setText(Utils.getMatchResult(mContext,hGoals,aGoals));
 
-        String homeCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_CREST));
-        String awayCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_CREST));
+        final String homeCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_CREST));
+        final String awayCrest = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.AWAY_CREST));
 
         Picasso.with(mContext).load(Utils.updateWikipediaSVGImageUrl(homeCrest)).error(R.drawable.no_icon).placeholder(R.drawable.ic_launcher).into(vh.homeCrest);
         Picasso.with(mContext).load(Utils.updateWikipediaSVGImageUrl(awayCrest)).error(R.drawable.no_icon).placeholder(R.drawable.ic_launcher).into(vh.awayCrest);
@@ -62,17 +62,25 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
 
             TextView league = (TextView) v.findViewById(R.id.league);
 
-            league.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_COL)));
+            final String matchLeague = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_COL));
+
+            league.setText(matchLeague);
 
             Button shareButton = (Button) v.findViewById(R.id.share_button);
 
-            final String ShareText = vh.homeName.getText() + " " + vh.matchScore.getText() + " " + vh.awayName.getText() + " " + mContext.getString(R.string.hash_tag);
+            final String matchDate = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.DATE_COL));
+
+            final String ShareText = new StringBuilder()
+                    .append(matchLeague).append(" \n").append(matchDate).append(":").append(vh.matchTime.getText()).append(" \n").append( vh.homeName.getText())
+                    .append(" ").append(vh.matchScore.getText()).append(" ").append(vh.awayName.getText())
+                    .append(" \n").append(mContext.getString(R.string.hash_tag)).toString();
 
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.subject));
                     shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText);
                     mContext.startActivity(shareIntent);
                 }

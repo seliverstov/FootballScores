@@ -82,7 +82,7 @@ public class FootballWidgetService extends RemoteViewsService {
             String homeScore = cursor.getString(cursor.getColumnIndex(HOME_GOALS_COL));
             String awayScore = cursor.getString(cursor.getColumnIndex(AWAY_GOALS_COL));
 
-            views.setTextViewText(R.id.widget_match_score,homeScore+" - "+awayScore);
+            views.setTextViewText(R.id.widget_match_score,Utils.getMatchResult(context,homeScore, awayScore));
 
             String homeCrest = cursor.getString(cursor.getColumnIndex(HOME_CREST));
             String awayCrest = cursor.getString(cursor.getColumnIndex(AWAY_CREST));

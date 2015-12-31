@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
         }
 
         SyncAdapter.init(this);
+        update();
     }
 
     @Override

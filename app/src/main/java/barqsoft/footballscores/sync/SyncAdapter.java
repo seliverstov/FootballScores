@@ -140,10 +140,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                 MatchResult r = m.getMatchResult();
                 if (r!=null){
-                    String h = (r.getGoalsHomeTeam()!=null)?String.valueOf(r.getGoalsHomeTeam()):"?";
-                    String a = (r.getGoalsAwayTeam()!=null)?String.valueOf(r.getGoalsAwayTeam()):"?";
-                    v.put(DatabaseContract.ScoresEntry.HOME_GOALS_COL, h);
-                    v.put(DatabaseContract.ScoresEntry.AWAY_GOALS_COL, a);
+                    //String h = (r.getGoalsHomeTeam()!=null)?String.valueOf(r.getGoalsHomeTeam()):"?";
+                    //String a = (r.getGoalsAwayTeam()!=null)?String.valueOf(r.getGoalsAwayTeam()):"?";
+                    v.put(DatabaseContract.ScoresEntry.HOME_GOALS_COL, r.getGoalsHomeTeam());
+                    v.put(DatabaseContract.ScoresEntry.AWAY_GOALS_COL, r.getGoalsAwayTeam());
                 }
                 long leagueId = ContentUris.parseId(Uri.parse(m.getLinks().getSoccerSeason()));
                 getLeagueInfo(fdc,leagueId,v,provider);

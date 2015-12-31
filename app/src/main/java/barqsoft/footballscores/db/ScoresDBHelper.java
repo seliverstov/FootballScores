@@ -16,7 +16,7 @@ public class ScoresDBHelper extends SQLiteOpenHelper{
     public static final String TAG = ScoresDBHelper.class.getSimpleName();
 
     public static final String DATABASE_NAME = "Scores.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 3;
 
     public ScoresDBHelper(Context context)
     {
@@ -33,8 +33,8 @@ public class ScoresDBHelper extends SQLiteOpenHelper{
                 + ScoresEntry.AWAY_COL + " TEXT NOT NULL,"
                 + ScoresEntry.LEAGUE_COL + " TEXT NOT NULL,"
                 + ScoresEntry.LEAGUE_ID_COL + " INTEGER NOT NULL,"
-                + ScoresEntry.HOME_GOALS_COL + " TEXT NOT NULL,"
-                + ScoresEntry.AWAY_GOALS_COL + " TEXT NOT NULL,"
+                + ScoresEntry.HOME_GOALS_COL + " TEXT,"
+                + ScoresEntry.AWAY_GOALS_COL + " TEXT,"
                 + ScoresEntry.MATCH_ID + " INTEGER NOT NULL,"
                 + ScoresEntry.MATCH_DAY + " INTEGER NOT NULL,"
                 + ScoresEntry.HOME_CREST+ " TEXT,"
