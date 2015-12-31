@@ -32,13 +32,6 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
         mContext = context;
     }
 
-    public Intent createShareForecastIntent(String ShareText) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText + mContext.getString(R.string.hash_tag));
-        return shareIntent;
-    }
-
     @Override
     public void onBindViewHolder(final ViewHolder vh, Cursor cursor) {
         vh.homeName.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.HOME_COL)));
@@ -72,12 +65,16 @@ public class ScoresAdapter extends CursorRecyclerViewAdapter<ScoresAdapter.ViewH
             league.setText(cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresEntry.LEAGUE_COL)));
 
             Button shareButton = (Button) v.findViewById(R.id.share_button);
+
+            final String ShareText = vh.homeName.getText() + " " + vh.matchScore.getText() + " " + vh.awayName.getText() + " " + mContext.getString(R.string.hash_tag);
+
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //add Share Action
-                    mContext.startActivity(createShareForecastIntent(vh.homeName.getText() + " "
-                            + vh.matchScore.getText() + " " + vh.awayName.getText() + " "));
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, ShareText);
+                    mContext.startActivity(shareIntent);
                 }
             });
         } else {
