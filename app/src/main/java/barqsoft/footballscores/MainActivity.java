@@ -35,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
     public static final String EXTRA_START_PAGE = "barqsoft.footballscores.EXTRA_START_PAGE";
     public static final String EXTRA_SELECTED_MATCH = "barqsoft.footballscores.EXTRA_SELECTED_MATCH";
 
-    public static final long SYNC_INTERVAL = 3600L;
-
     public static int sSelectedMatch = -1;
 
     public static final int DEFAULT_PAGE = 2;
@@ -113,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
               sSelectedMatch = selectedMatch;
         }
 
-        SyncAdapter.addPeriodicSync(this,SYNC_INTERVAL);
-        update();
+        SyncAdapter.init(this);
     }
 
     @Override

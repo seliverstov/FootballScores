@@ -9,9 +9,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
@@ -45,6 +47,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String ACCOUNT_TYPE = "footballscores.barqsoft";
 
+    public static final int SYNC_INTERVAL = 60 * 60;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
@@ -65,6 +70,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             messageIntent.putExtra(MainActivity.MESSAGE_UPDATE_SCORES,getContext().getString(R.string.server_error));
         }
         broadcastManager.sendBroadcast(messageIntent);
+    }
+
+    public static void init(Context context){
+        getAccount(context);
     }
 
     public static void syncNow(Context context){
@@ -88,13 +97,30 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.i(TAG, "Account doesn't exist");
                 return null;
             }
+            SyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+
+            ContentResolver.setSyncAutomatically(newAccount, DatabaseContract.CONTENT_AUTHORITY, true);
+
+            syncNow(context);
         }
 
         return newAccount;
     }
 
-    public static void addPeriodicSync(Context context, long interval) {
-        ContentResolver.addPeriodicSync(getAccount(context),DatabaseContract.CONTENT_AUTHORITY, Bundle.EMPTY, interval);
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+        Account account = getAccount(context);
+        String authority = DatabaseContract.CONTENT_AUTHORITY;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).
+                    setExtras(new Bundle()).build();
+            ContentResolver.requestSync(request);
+        } else {
+            ContentResolver.addPeriodicSync(account,
+                    authority, new Bundle(), syncInterval);
+        }
     }
 
     private void getMatches(FootballDataClient fdc,String timeFrame, ContentProviderClient provider){
