@@ -72,7 +72,7 @@ public class PageFragment extends Fragment implements LoaderManager.LoaderCallba
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle)
     {
         return new CursorLoader(getActivity(), DatabaseContract.ScoresEntry.buildScoreWithDate(),
-                null,null,new String[] {bundle.getString(DATE)},null);
+                null,null,new String[] {bundle.getString(DATE)},DatabaseContract.ScoresEntry.TIME_COL);
     }
 
     @Override

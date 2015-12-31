@@ -101,8 +101,7 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
 
         int startPage = getIntent().getIntExtra(EXTRA_START_PAGE, -1);
         int selectedMatch = getIntent().getIntExtra(EXTRA_SELECTED_MATCH, -1);
-        Log.i(TAG, "onCreate_________________");
-        Log.i(TAG,"selectedMatch "+selectedMatch);
+
         if (startPage>=0) {
             mViewPager.setCurrentItem(startPage);
         }else{
@@ -121,10 +120,8 @@ public class MainActivity extends AppCompatActivity implements SelectedMatchChan
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.i(TAG, "onNewIntent_________________");
-
         int startPage = intent.getIntExtra(EXTRA_START_PAGE, -1);
-        Log.i(TAG, "startPage"+startPage);
+
         int selectedMatch = intent.getIntExtra(EXTRA_SELECTED_MATCH, -1);
         if (startPage>=0) {
             mViewPager.setCurrentItem(startPage);
