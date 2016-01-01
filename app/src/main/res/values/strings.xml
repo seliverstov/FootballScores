@@ -28,7 +28,7 @@
         During the off season, fake data will be added to the app.
     </string>
 
-    <string name="api_key" translatable="false">b562a379adc54afd8e427f065dbbe3de</string>
+    <string name="api_key" translatable="false"></string>
 
     <string name="hash_tag">#Football_Scores</string>
 
